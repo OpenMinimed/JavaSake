@@ -98,6 +98,14 @@ public final class SeqCrypt {
         return plaintext;
     }
 
+    public byte[] key() {
+        return key.clone();
+    }
+
+    public byte[] nonce() {
+        return nonce.clone();
+    }
+
     public long getTxSeq() {
         return txSeq;
     }
