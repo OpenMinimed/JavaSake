@@ -12,6 +12,12 @@ import org.bouncycastle.crypto.params.KeyParameter;
  * <p>The handshake uses both {@code macLen=8} (handshake CMAC chain) and {@code macLen=4} (permit
  * auth, SeqCrypt trailer prefix). BouncyCastle always produces a 16-byte tag; we truncate to {@code
  * macLen} bytes to match the PyCryptodome {@code mac_len} parameter.
+ *
+ * <p>State accumulates across {@link #update(byte[])} calls. Calling {@link #digest()} or {@link
+ * #verify(byte[])} computes the tag and resets the underlying {@code CMac}, leaving the instance
+ * ready to receive {@code update} calls for a fresh message.
+ *
+ * <p>Instances are not thread-safe.
  */
 public final class AesCmac {
 
@@ -40,6 +46,11 @@ public final class AesCmac {
         return this;
     }
 
+    /**
+     * Compute the truncated MAC over all data accumulated since construction (or the previous
+     * {@code digest}/{@code verify} call). The underlying state is reset; further {@link
+     * #update(byte[])} calls begin a new message.
+     */
     public byte[] digest() {
         byte[] full = new byte[mac.getMacSize()];
         mac.doFinal(full, 0);
@@ -50,7 +61,8 @@ public final class AesCmac {
     }
 
     /**
-     * Constant-time comparison against an expected tag.
+     * Constant-time comparison against an expected tag. Internally calls {@link #digest()} and
+     * therefore resets the underlying MAC state.
      *
      * @return true if the computed digest matches {@code expected}, byte-for-byte.
      */

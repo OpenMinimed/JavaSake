@@ -13,11 +13,24 @@ import org.openminimed.sake.crypto.AesCtr;
  * is three bytes:
  *
  * <pre>
- *   [ (seq &gt;&gt; 1) &amp; 0xFF ][ CMAC4(nonce.padTo16 || ciphertext)[0..2] ]
+ *   [ (seq &gt;&gt; 1) &amp; 0xFF ][ CMAC4(nonce.padTo16 || ciphertext)[0..1] ]
  * </pre>
  *
- * <p>The receiver reconstructs the full 32-bit sequence from its local {@code rxSeq} and the 1-byte
- * field in the trailer, tolerating an 8-bit wrap-around.
+ * <p>The receiver reconstructs the full sequence from its local {@code rxSeq} and the 1-byte field
+ * in the trailer, tolerating an 8-bit wrap-around. Deltas larger than {@link #MAX_RX_DELTA} are
+ * rejected to bound the damage from a forged but MAC-valid packet.
+ *
+ * <p>The two-byte trailer MAC is dictated by the SAKE wire protocol: it is a sixteen-bit
+ * authentication tag, not a full-strength MAC, and reflects the protocol's defence-in-depth
+ * trade-off between packet size and forgery resistance.
+ *
+ * <p>The IV layout stores the sequence as five big-endian bytes followed by the eight-byte nonce
+ * and three zero counter bytes. The five-byte sequence field bounds {@code txSeq} to less than
+ * {@link #MAX_SEQ}; encryption past that point would silently truncate the sequence and risk IV
+ * reuse, so {@link #encrypt(byte[])} rejects it.
+ *
+ * <p>Instances are not thread-safe. External synchronisation is required if a single instance is
+ * shared across threads.
  */
 public final class SeqCrypt {
 
@@ -26,6 +39,16 @@ public final class SeqCrypt {
     private static final int NONCE_SIZE = 8;
     private static final int MAC_SIZE = 4;
     private static final int IV_SIZE = 16;
+
+    /** Exclusive upper bound on {@code txSeq}: 2^40, matching the 5-byte sequence prefix. */
+    public static final long MAX_SEQ = 1L << 40;
+
+    /**
+     * Maximum accepted delta (in trailer-byte units) between an incoming packet's sequence and the
+     * receiver's tracked {@code rxSeq}. A delta of {@value} corresponds to skipping 256 packets
+     * forward; larger jumps are treated as forgery attempts.
+     */
+    public static final int MAX_RX_DELTA = 128;
 
     private final byte[] key;
     private final byte[] nonce;
@@ -50,6 +73,9 @@ public final class SeqCrypt {
     public byte[] encrypt(byte[] plaintext) {
         Objects.requireNonNull(plaintext, "plaintext");
         long seq = txSeq;
+        if (seq < 0 || seq >= MAX_SEQ) {
+            throw new IllegalStateException("txSeq " + seq + " exceeds the 2^40 IV sequence bound");
+        }
         byte[] iv = buildIv(seq);
         byte[] ciphertext = AesCtr.crypt(key, iv, plaintext);
         byte[] tagPrefix = computeTagPrefix(seq, ciphertext);
@@ -78,6 +104,10 @@ public final class SeqCrypt {
 
         int seqByte = message[message.length - TRAILER_SIZE] & 0xFF;
         int delta = (seqByte - (int) ((rxSeq >>> 1) & 0xFF)) & 0xFF;
+        if (delta > MAX_RX_DELTA) {
+            throw new MacFailureException(
+                    "Sequence delta " + delta + " exceeds reorder window of " + MAX_RX_DELTA);
+        }
         long seq = rxSeq + 2L * delta;
 
         int ciphertextLen = message.length - TRAILER_SIZE;

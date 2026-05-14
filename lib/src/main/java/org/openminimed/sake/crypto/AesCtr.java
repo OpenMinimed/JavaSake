@@ -9,9 +9,15 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * AES-128 CTR stream encryption.
  *
- * <p>The 16-byte IV is treated as the initial 128-bit counter and incremented by one per block.
- * Callers are responsible for assembling the IV such that the counter region does not wrap into the
- * nonce region.
+ * <p>The 16-byte IV is passed unchanged to the JDK's {@code AES/CTR/NoPadding} cipher, which treats
+ * it as a 128-bit initial counter and increments the whole thing by one per block.
+ *
+ * <p><b>The (key, IV) pair must be unique per encryption.</b> Reusing the same key with the same IV
+ * for two different plaintexts completely breaks CTR-mode confidentiality and authenticity. Callers
+ * are responsible for assembling the IV so that (a) it differs across every encryption performed
+ * under a given key, and (b) the per-block counter increments never wrap into the bits that carry
+ * the unique nonce or sequence number. See {@link org.openminimed.sake.SeqCrypt} for the SAKE
+ * session's IV construction.
  *
  * <p>CTR is symmetric so the same method is used to encrypt and decrypt.
  */

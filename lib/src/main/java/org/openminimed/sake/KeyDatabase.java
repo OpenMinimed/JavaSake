@@ -33,6 +33,9 @@ public final class KeyDatabase {
     private final Map<DeviceType, StaticKeys> remoteDevices;
     private final byte[] crc;
 
+    /** Maximum number of remote-device entries: the wire format encodes the count in one byte. */
+    public static final int MAX_REMOTE_DEVICES = 0xFF;
+
     public KeyDatabase(
             DeviceType localDeviceType, Map<DeviceType, StaticKeys> remoteDevices, byte[] crc) {
         this.localDeviceType = Objects.requireNonNull(localDeviceType, "localDeviceType");
@@ -40,6 +43,13 @@ public final class KeyDatabase {
         Objects.requireNonNull(crc, "crc");
         if (crc.length != CRC_SIZE) {
             throw new IllegalArgumentException("crc must be " + CRC_SIZE + " bytes");
+        }
+        if (remoteDevices.size() > MAX_REMOTE_DEVICES) {
+            throw new IllegalArgumentException(
+                    "remoteDevices size "
+                            + remoteDevices.size()
+                            + " exceeds wire-format limit "
+                            + MAX_REMOTE_DEVICES);
         }
         this.remoteDevices = Collections.unmodifiableMap(new LinkedHashMap<>(remoteDevices));
         this.crc = crc.clone();

@@ -8,6 +8,12 @@ import java.util.List;
  *
  * <p>These are the three databases shipped with the reference Python implementation in {@code
  * pysake/constants.py}. The hex strings are reproduced verbatim and parsed at class-init time.
+ *
+ * <p>The byte sequences here are <em>shared</em> SAKE protocol constants extracted from pump
+ * firmware: a real 780-series pump contains the same values internally and uses them to
+ * authenticate any phone-side application it pairs with. They are not session secrets and they are
+ * not unique per device, so embedding them in source is correct (and necessary; the protocol is not
+ * negotiable without them).
  */
 public final class Constants {
 

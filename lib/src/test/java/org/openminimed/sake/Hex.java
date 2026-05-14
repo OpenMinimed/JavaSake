@@ -12,8 +12,11 @@ public final class Hex {
         for (int i = 0; i < out.length; i++) {
             int high = Character.digit(hex.charAt(2 * i), 16);
             int low = Character.digit(hex.charAt(2 * i + 1), 16);
-            if (high < 0 || low < 0) {
+            if (high < 0) {
                 throw new IllegalArgumentException("Invalid hex character at index " + (2 * i));
+            }
+            if (low < 0) {
+                throw new IllegalArgumentException("Invalid hex character at index " + (2 * i + 1));
             }
             out[i] = (byte) ((high << 4) | low);
         }

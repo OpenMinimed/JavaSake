@@ -248,10 +248,21 @@ public final class Session {
         return serverStaticKeys;
     }
 
+    /**
+     * Returns the live {@link SeqCrypt} used for messages originating from the client. The
+     * reference is intentional: {@link SakeServer} and {@link SakeClient} drive the sequence
+     * counter forward by calling {@link SeqCrypt#encrypt(byte[])} / {@link
+     * SeqCrypt#decrypt(byte[])} directly on this instance. Callers outside the handshake should
+     * treat the returned object as read-only.
+     */
     public SeqCrypt clientCrypt() {
         return clientCrypt;
     }
 
+    /**
+     * Returns the live {@link SeqCrypt} used for messages originating from the server. See {@link
+     * #clientCrypt()} for the rationale on returning the reference directly.
+     */
     public SeqCrypt serverCrypt() {
         return serverCrypt;
     }

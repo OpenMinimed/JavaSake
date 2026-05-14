@@ -106,4 +106,27 @@ class SeqCryptTest {
         assertArrayEquals(PLAIN_1, recovered);
         assertEquals(514L, rx.getRxSeq());
     }
+
+    /**
+     * The receiver must reject incoming sequences that imply a forward jump beyond the configured
+     * reorder window. A forged-but-MAC-valid packet at a far-future sequence number could otherwise
+     * permanently desync rxSeq.
+     */
+    @Test
+    void decryptRejectsDeltaBeyondReorderWindow() {
+        SeqCrypt tx = new SeqCrypt(KEY, NONCE, 2L * (SeqCrypt.MAX_RX_DELTA + 1));
+        byte[] cipher = tx.encrypt(PLAIN_2);
+        SeqCrypt rx = new SeqCrypt(KEY, NONCE, 0L);
+        assertThrows(MacFailureException.class, () -> rx.decrypt(cipher));
+    }
+
+    /**
+     * Encrypting past the 2^40 sequence boundary would silently truncate the sequence in the five
+     * IV prefix bytes and risk IV reuse. {@link SeqCrypt#encrypt(byte[])} must reject it.
+     */
+    @Test
+    void encryptRejectsSequenceAtFortyBitBoundary() {
+        SeqCrypt sc = new SeqCrypt(KEY, NONCE, SeqCrypt.MAX_SEQ);
+        assertThrows(IllegalStateException.class, () -> sc.encrypt(PLAIN_2));
+    }
 }

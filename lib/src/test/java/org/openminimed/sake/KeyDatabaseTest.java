@@ -79,6 +79,27 @@ class KeyDatabaseTest {
     }
 
     @Test
+    void constructorRejectsRemoteDeviceCountAboveWireLimit() {
+        // DeviceType only has eight enum values, so we cannot actually fill 256 entries.
+        // Use a size-only Map view to drive the constructor down the size-validation branch.
+        java.util.Map<DeviceType, StaticKeys> oversize =
+                new java.util.AbstractMap<>() {
+                    @Override
+                    public java.util.Set<Entry<DeviceType, StaticKeys>> entrySet() {
+                        return java.util.Set.of();
+                    }
+
+                    @Override
+                    public int size() {
+                        return KeyDatabase.MAX_REMOTE_DEVICES + 1;
+                    }
+                };
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new KeyDatabase(DeviceType.MOBILE_APPLICATION, oversize, new byte[4]));
+    }
+
+    @Test
     void reverseProducesValidDatabase() {
         for (String hex : new String[] {HEX_G4_CGM, HEX_PUMP_EXTRACTED, HEX_PUMP_HARDCODED}) {
             KeyDatabase original = KeyDatabase.fromBytes(Hex.decode(hex));
