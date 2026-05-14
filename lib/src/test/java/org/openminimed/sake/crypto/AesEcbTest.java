@@ -1,14 +1,12 @@
 package org.openminimed.sake.crypto;
 
-import org.junit.jupiter.api.Test;
-import org.openminimed.sake.Hex;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-/**
- * Known-answer tests from NIST SP 800-38A Appendix F.1 (AES-128 ECB).
- */
+import org.junit.jupiter.api.Test;
+import org.openminimed.sake.Hex;
+
+/** Known-answer tests from NIST SP 800-38A Appendix F.1 (AES-128 ECB). */
 class AesEcbTest {
 
     private static final byte[] KEY = Hex.decode("2b7e151628aed2a6abf7158809cf4f3c");
@@ -37,13 +35,12 @@ class AesEcbTest {
     @Test
     void rejectsWrongKeyLength() {
         byte[] plain = new byte[16];
-        assertThrows(IllegalArgumentException.class,
-                () -> AesEcb.encryptBlock(new byte[15], plain));
+        assertThrows(
+                IllegalArgumentException.class, () -> AesEcb.encryptBlock(new byte[15], plain));
     }
 
     @Test
     void rejectsWrongBlockLength() {
-        assertThrows(IllegalArgumentException.class,
-                () -> AesEcb.encryptBlock(KEY, new byte[15]));
+        assertThrows(IllegalArgumentException.class, () -> AesEcb.encryptBlock(KEY, new byte[15]));
     }
 }

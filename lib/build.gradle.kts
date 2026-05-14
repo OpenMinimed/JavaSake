@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    alias(libs.plugins.spotless)
 }
 
 group = "org.openminimed"
@@ -27,5 +28,15 @@ tasks.test {
     useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
+    }
+}
+
+spotless {
+    java {
+        target("src/**/*.java")
+        googleJavaFormat(libs.versions.googleJavaFormat.get()).aosp()
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
     }
 }

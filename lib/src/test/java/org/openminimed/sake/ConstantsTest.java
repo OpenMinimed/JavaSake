@@ -1,10 +1,10 @@
 package org.openminimed.sake;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 class ConstantsTest {
 
@@ -16,15 +16,15 @@ class ConstantsTest {
 
     @Test
     void pumpExtractedLocalIsMobileApplication() {
-        assertEquals(DeviceType.MOBILE_APPLICATION,
-                Constants.KEYDB_PUMP_EXTRACTED.localDeviceType());
+        assertEquals(
+                DeviceType.MOBILE_APPLICATION, Constants.KEYDB_PUMP_EXTRACTED.localDeviceType());
         assertNotNull(Constants.KEYDB_PUMP_EXTRACTED.remoteDevices().get(DeviceType.INSULIN_PUMP));
     }
 
     @Test
     void pumpHardcodedLocalIsMobileApplication() {
-        assertEquals(DeviceType.MOBILE_APPLICATION,
-                Constants.KEYDB_PUMP_HARDCODED.localDeviceType());
+        assertEquals(
+                DeviceType.MOBILE_APPLICATION, Constants.KEYDB_PUMP_HARDCODED.localDeviceType());
         assertNotNull(Constants.KEYDB_PUMP_HARDCODED.remoteDevices().get(DeviceType.INSULIN_PUMP));
     }
 

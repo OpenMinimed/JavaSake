@@ -1,23 +1,21 @@
 package org.openminimed.sake.crypto;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
 import java.util.Objects;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Single-block AES-128 ECB encrypt / decrypt.
  *
- * <p>Used by the handshake exclusively on 16-byte blocks; this class does not
- * accept anything else.</p>
+ * <p>Used by the handshake exclusively on 16-byte blocks; this class does not accept anything else.
  */
 public final class AesEcb {
 
     /** AES block size in bytes. */
     public static final int BLOCK_SIZE = 16;
 
-    private AesEcb() {
-    }
+    private AesEcb() {}
 
     public static byte[] encryptBlock(byte[] key, byte[] block) {
         return process(key, block, Cipher.ENCRYPT_MODE);

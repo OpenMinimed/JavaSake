@@ -2,8 +2,7 @@ package org.openminimed.sake;
 
 public final class Hex {
 
-    private Hex() {
-    }
+    private Hex() {}
 
     public static byte[] decode(String hex) {
         if ((hex.length() & 1) != 0) {
@@ -12,7 +11,7 @@ public final class Hex {
         byte[] out = new byte[hex.length() / 2];
         for (int i = 0; i < out.length; i++) {
             int high = Character.digit(hex.charAt(2 * i), 16);
-            int low  = Character.digit(hex.charAt(2 * i + 1), 16);
+            int low = Character.digit(hex.charAt(2 * i + 1), 16);
             if (high < 0 || low < 0) {
                 throw new IllegalArgumentException("Invalid hex character at index " + (2 * i));
             }

@@ -11,7 +11,8 @@ import java.util.zip.CRC32;
 /**
  * Database of static keys shared between one local device and any number of remote devices.
  *
- * <p>The on-wire layout is:</p>
+ * <p>The on-wire layout is:
+ *
  * <pre>
  *   [ 4 B CRC32 big-endian over everything that follows ]
  *   [ 1 B local device type ]
@@ -20,7 +21,7 @@ import java.util.zip.CRC32;
  * </pre>
  *
  * <p>Each entry following the header is therefore 81 bytes and the total serialized length is
- * {@code 6 + 81 * n} bytes.</p>
+ * {@code 6 + 81 * n} bytes.
  */
 public final class KeyDatabase {
 
@@ -32,9 +33,8 @@ public final class KeyDatabase {
     private final Map<DeviceType, StaticKeys> remoteDevices;
     private final byte[] crc;
 
-    public KeyDatabase(DeviceType localDeviceType,
-                       Map<DeviceType, StaticKeys> remoteDevices,
-                       byte[] crc) {
+    public KeyDatabase(
+            DeviceType localDeviceType, Map<DeviceType, StaticKeys> remoteDevices, byte[] crc) {
         this.localDeviceType = Objects.requireNonNull(localDeviceType, "localDeviceType");
         Objects.requireNonNull(remoteDevices, "remoteDevices");
         Objects.requireNonNull(crc, "crc");
@@ -64,8 +64,8 @@ public final class KeyDatabase {
 
         byte[] computedCrc = computeCrc(payload);
         if (!java.util.Arrays.equals(storedCrc, computedCrc)) {
-            throw new IllegalArgumentException("CRC mismatch: stored="
-                    + hex(storedCrc) + " computed=" + hex(computedCrc));
+            throw new IllegalArgumentException(
+                    "CRC mismatch: stored=" + hex(storedCrc) + " computed=" + hex(computedCrc));
         }
 
         DeviceType localDeviceType = DeviceType.fromValue(payload[0] & 0xFF);
@@ -87,7 +87,9 @@ public final class KeyDatabase {
         return new KeyDatabase(localDeviceType, remotes, storedCrc);
     }
 
-    /** @return the serialized database with a freshly computed CRC. */
+    /**
+     * @return the serialized database with a freshly computed CRC.
+     */
     public byte[] toBytes() {
         byte[] payload = payloadBytes();
         byte[] crcBytes = computeCrc(payload);
@@ -100,7 +102,7 @@ public final class KeyDatabase {
     /**
      * Return a new database with the local/remote roles swapped.
      *
-     * <p>Requires exactly one remote device.</p>
+     * <p>Requires exactly one remote device.
      *
      * @throws IllegalStateException if this database does not contain exactly one remote device.
      */

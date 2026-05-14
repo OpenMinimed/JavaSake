@@ -7,8 +7,8 @@ import java.util.Deque;
 /**
  * Deterministic {@link RngSource} that returns pre-queued byte arrays in order.
  *
- * <p>Used by parity tests to drive {@link SakeServer} / {@link SakeClient}
- * through a captured packet trace.</p>
+ * <p>Used by parity tests to drive {@link SakeServer} / {@link SakeClient} through a captured
+ * packet trace.
  */
 final class QueuedRngSource implements RngSource {
 
@@ -27,8 +27,10 @@ final class QueuedRngSource implements RngSource {
         }
         if (next.length != n) {
             throw new IllegalStateException(
-                    "QueuedRngSource size mismatch: caller asked for " + n
-                            + " bytes but next queued value is " + next.length);
+                    "QueuedRngSource size mismatch: caller asked for "
+                            + n
+                            + " bytes but next queued value is "
+                            + next.length);
         }
         return next.clone();
     }

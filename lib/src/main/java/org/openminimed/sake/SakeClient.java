@@ -1,15 +1,14 @@
 package org.openminimed.sake;
 
-import org.openminimed.sake.crypto.AesCmac;
-
 import java.util.Arrays;
 import java.util.Objects;
+import org.openminimed.sake.crypto.AesCmac;
 
 /**
  * Client-side wrapper around {@link Session}.
  *
- * <p>Stage progression: 0 (consume server msg0, emit msg1) → 2 (consume msg2,
- * emit msg3) → 4 (consume msg4, emit msg5) → 6 (done).</p>
+ * <p>Stage progression: 0 (consume server msg0, emit msg1) → 2 (consume msg2, emit msg3) → 4
+ * (consume msg4, emit msg5) → 6 (done).
  */
 public final class SakeClient extends Peer {
 
@@ -109,11 +108,12 @@ public final class SakeClient extends Peer {
     }
 
     private byte[] buildHandshake3C() {
-        AesCmac auth1 = Session.cmac8(
-                session.clientKeyMaterial(),
-                session.serverKeyMaterial(),
-                session.derivationKey(),
-                session.handshakeAuthKey());
+        AesCmac auth1 =
+                Session.cmac8(
+                        session.clientKeyMaterial(),
+                        session.serverKeyMaterial(),
+                        session.derivationKey(),
+                        session.handshakeAuthKey());
         byte[] auth1Tag = auth1.digest();
 
         byte[] inner = new byte[8 + 8 + 16];

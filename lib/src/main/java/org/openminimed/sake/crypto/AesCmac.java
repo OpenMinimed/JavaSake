@@ -1,19 +1,17 @@
 package org.openminimed.sake.crypto;
 
+import java.util.Arrays;
+import java.util.Objects;
 import org.bouncycastle.crypto.engines.AESEngine;
 import org.bouncycastle.crypto.macs.CMac;
 import org.bouncycastle.crypto.params.KeyParameter;
 
-import java.util.Arrays;
-import java.util.Objects;
-
 /**
  * Stateful AES-CMAC over a 16-byte AES-128 key with a configurable truncation length.
  *
- * <p>The handshake uses both {@code macLen=8} (handshake CMAC chain) and
- * {@code macLen=4} (permit auth, SeqCrypt trailer prefix). BouncyCastle always
- * produces a 16-byte tag; we truncate to {@code macLen} bytes to match the
- * PyCryptodome {@code mac_len} parameter.</p>
+ * <p>The handshake uses both {@code macLen=8} (handshake CMAC chain) and {@code macLen=4} (permit
+ * auth, SeqCrypt trailer prefix). BouncyCastle always produces a 16-byte tag; we truncate to {@code
+ * macLen} bytes to match the PyCryptodome {@code mac_len} parameter.
  */
 public final class AesCmac {
 

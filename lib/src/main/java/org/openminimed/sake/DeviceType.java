@@ -3,11 +3,10 @@ package org.openminimed.sake;
 /**
  * Type of device participating in a SAKE handshake.
  *
- * <p>The numeric values are wire-stable: they are serialized into the
- * key-database header and into handshake messages.</p>
+ * <p>The numeric values are wire-stable: they are serialized into the key-database header and into
+ * handshake messages.
  */
 public enum DeviceType {
-
     INSULIN_PUMP(0x1),
     GLUCOSE_SENSOR(0x2),
     BLOOD_GLUCOSE_METER(0x3),
@@ -26,7 +25,9 @@ public enum DeviceType {
         this.value = value;
     }
 
-    /** @return the wire value (1 byte, unsigned). */
+    /**
+     * @return the wire value (1 byte, unsigned).
+     */
     public int value() {
         return value;
     }

@@ -1,33 +1,33 @@
 package org.openminimed.sake;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.junit.jupiter.api.Test;
+
 class KeyDatabaseTest {
 
     /**
      * The three baked-in key databases from the reference Python implementation
-     * (pysake/constants.py). They are the canonical round-trip vectors for this
-     * parser: any change to the serialization must keep these byte-identical.
+     * (pysake/constants.py). They are the canonical round-trip vectors for this parser: any change
+     * to the serialization must keep these byte-identical.
      */
     private static final String HEX_G4_CGM =
             "5fe5928308010230f0b50df613f2e429c8c5e8713854add1a69b837235a3e974"
-            + "304d8055ccb397838b90823c73236d6a83dcc9db3a2a939ff16145ca4169ef93"
-            + "a7fa39b20962b05e57413bff8b3d61fce0dfef2c43b326";
+                    + "304d8055ccb397838b90823c73236d6a83dcc9db3a2a939ff16145ca4169ef93"
+                    + "a7fa39b20962b05e57413bff8b3d61fce0dfef2c43b326";
 
     private static final String HEX_PUMP_EXTRACTED =
             "f75995e70401011bc1bf7cbf36fa1e2367d795ff09211903da6afbe986b650f1"
-            + "4179c0e6852e0ce393781078ffc6f51919e2eaefbde69b8eca21e41ab59b881a"
-            + "0bea0286ea91dc7582a86a714e1737f558f0d66dc1895c";
+                    + "4179c0e6852e0ce393781078ffc6f51919e2eaefbde69b8eca21e41ab59b881a"
+                    + "0bea0286ea91dc7582a86a714e1737f558f0d66dc1895c";
 
     private static final String HEX_PUMP_HARDCODED =
             "c2cdfdd1040101fce36ed66ef21def3b0763975494b239038ebe8606f79a9bf0"
-            + "0d9f11b6db04c7c0434787cbf00d5476289c22288e2105ae40e01391837f9476"
-            + "fa5003895c5a1afe35662a2a6211826af016eebe30e4ba";
+                    + "0d9f11b6db04c7c0434787cbf00d5476289c22288e2105ae40e01391837f9476"
+                    + "fa5003895c5a1afe35662a2a6211826af016eebe30e4ba";
 
     @Test
     void parsesG4Cgm() {
@@ -55,10 +55,12 @@ class KeyDatabaseTest {
 
     @Test
     void roundTripIsByteIdentical() {
-        for (String hex : new String[]{HEX_G4_CGM, HEX_PUMP_EXTRACTED, HEX_PUMP_HARDCODED}) {
+        for (String hex : new String[] {HEX_G4_CGM, HEX_PUMP_EXTRACTED, HEX_PUMP_HARDCODED}) {
             byte[] original = Hex.decode(hex);
             byte[] roundTripped = KeyDatabase.fromBytes(original).toBytes();
-            assertArrayEquals(original, roundTripped,
+            assertArrayEquals(
+                    original,
+                    roundTripped,
                     "Round trip differed for " + hex.substring(0, 16) + "...");
         }
     }
@@ -72,13 +74,13 @@ class KeyDatabaseTest {
 
     @Test
     void rejectsTruncatedBuffer() {
-        byte[] truncated = new byte[]{0x00, 0x00, 0x00, 0x00, 0x04};
+        byte[] truncated = new byte[] {0x00, 0x00, 0x00, 0x00, 0x04};
         assertThrows(IllegalArgumentException.class, () -> KeyDatabase.fromBytes(truncated));
     }
 
     @Test
     void reverseProducesValidDatabase() {
-        for (String hex : new String[]{HEX_G4_CGM, HEX_PUMP_EXTRACTED, HEX_PUMP_HARDCODED}) {
+        for (String hex : new String[] {HEX_G4_CGM, HEX_PUMP_EXTRACTED, HEX_PUMP_HARDCODED}) {
             KeyDatabase original = KeyDatabase.fromBytes(Hex.decode(hex));
             KeyDatabase reversed = original.reverse();
             assertEquals(

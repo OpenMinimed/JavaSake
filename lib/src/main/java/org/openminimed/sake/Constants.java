@@ -6,36 +6,39 @@ import java.util.List;
 /**
  * Pre-baked key databases used by SAKE peers.
  *
- * <p>These are the three databases shipped with the reference Python
- * implementation in {@code pysake/constants.py}. The hex strings are
- * reproduced verbatim and parsed at class-init time.</p>
+ * <p>These are the three databases shipped with the reference Python implementation in {@code
+ * pysake/constants.py}. The hex strings are reproduced verbatim and parsed at class-init time.
  */
 public final class Constants {
 
     /** Glucose sensor (G4 family) key database. Display-side. */
-    public static final KeyDatabase KEYDB_G4_CGM = parse(
-            "5fe5928308010230f0b50df613f2e429c8c5e8713854add1a69b837235a3e974"
-            + "304d8055ccb397838b90823c73236d6a83dcc9db3a2a939ff16145ca4169ef93"
-            + "a7fa39b20962b05e57413bff8b3d61fce0dfef2c43b326");
+    public static final KeyDatabase KEYDB_G4_CGM =
+            parse(
+                    "5fe5928308010230f0b50df613f2e429c8c5e8713854add1a69b837235a3e974"
+                            + "304d8055ccb397838b90823c73236d6a83dcc9db3a2a939ff16145ca4169ef93"
+                            + "a7fa39b20962b05e57413bff8b3d61fce0dfef2c43b326");
 
     /** Insulin pump database recovered from real pump firmware. Mobile-app-side. */
-    public static final KeyDatabase KEYDB_PUMP_EXTRACTED = parse(
-            "f75995e70401011bc1bf7cbf36fa1e2367d795ff09211903da6afbe986b650f1"
-            + "4179c0e6852e0ce393781078ffc6f51919e2eaefbde69b8eca21e41ab59b881a"
-            + "0bea0286ea91dc7582a86a714e1737f558f0d66dc1895c");
+    public static final KeyDatabase KEYDB_PUMP_EXTRACTED =
+            parse(
+                    "f75995e70401011bc1bf7cbf36fa1e2367d795ff09211903da6afbe986b650f1"
+                            + "4179c0e6852e0ce393781078ffc6f51919e2eaefbde69b8eca21e41ab59b881a"
+                            + "0bea0286ea91dc7582a86a714e1737f558f0d66dc1895c");
 
     /** Insulin pump database with hard-coded test keys. Mobile-app-side. */
-    public static final KeyDatabase KEYDB_PUMP_HARDCODED = parse(
-            "c2cdfdd1040101fce36ed66ef21def3b0763975494b239038ebe8606f79a9bf0"
-            + "0d9f11b6db04c7c0434787cbf00d5476289c22288e2105ae40e01391837f9476"
-            + "fa5003895c5a1afe35662a2a6211826af016eebe30e4ba");
+    public static final KeyDatabase KEYDB_PUMP_HARDCODED =
+            parse(
+                    "c2cdfdd1040101fce36ed66ef21def3b0763975494b239038ebe8606f79a9bf0"
+                            + "0d9f11b6db04c7c0434787cbf00d5476289c22288e2105ae40e01391837f9476"
+                            + "fa5003895c5a1afe35662a2a6211826af016eebe30e4ba");
 
     /** Databases available for production handshakes. */
-    public static final List<KeyDatabase> AVAILABLE_KEYS = Collections.unmodifiableList(
-            java.util.Arrays.asList(KEYDB_G4_CGM, KEYDB_PUMP_EXTRACTED, KEYDB_PUMP_HARDCODED));
+    public static final List<KeyDatabase> AVAILABLE_KEYS =
+            Collections.unmodifiableList(
+                    java.util.Arrays.asList(
+                            KEYDB_G4_CGM, KEYDB_PUMP_EXTRACTED, KEYDB_PUMP_HARDCODED));
 
-    private Constants() {
-    }
+    private Constants() {}
 
     private static KeyDatabase parse(String hex) {
         return KeyDatabase.fromBytes(decode(hex));
@@ -48,7 +51,7 @@ public final class Constants {
         byte[] out = new byte[hex.length() / 2];
         for (int i = 0; i < out.length; i++) {
             int high = Character.digit(hex.charAt(2 * i), 16);
-            int low  = Character.digit(hex.charAt(2 * i + 1), 16);
+            int low = Character.digit(hex.charAt(2 * i + 1), 16);
             if (high < 0 || low < 0) {
                 throw new IllegalArgumentException("Invalid hex character");
             }

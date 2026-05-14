@@ -4,16 +4,16 @@ import java.util.Arrays;
 import java.util.Objects;
 
 /**
- * Five 16-byte keys shared between two specific devices, plus an opaque
- * 16-byte handshake payload.
+ * Five 16-byte keys shared between two specific devices, plus an opaque 16-byte handshake payload.
  *
- * <p>The on-wire form is the concatenation, in declaration order, of:</p>
+ * <p>The on-wire form is the concatenation, in declaration order, of:
+ *
  * <ol>
- *   <li>{@code derivationKey}</li>
- *   <li>{@code handshakeAuthKey}</li>
- *   <li>{@code permitDecryptKey}</li>
- *   <li>{@code permitAuthKey}</li>
- *   <li>{@code handshakePayload}</li>
+ *   <li>{@code derivationKey}
+ *   <li>{@code handshakeAuthKey}
+ *   <li>{@code permitDecryptKey}
+ *   <li>{@code permitAuthKey}
+ *   <li>{@code handshakePayload}
  * </ol>
  */
 public final class StaticKeys {
@@ -30,11 +30,12 @@ public final class StaticKeys {
     private final byte[] permitAuthKey;
     private final byte[] handshakePayload;
 
-    public StaticKeys(byte[] derivationKey,
-                      byte[] handshakeAuthKey,
-                      byte[] permitDecryptKey,
-                      byte[] permitAuthKey,
-                      byte[] handshakePayload) {
+    public StaticKeys(
+            byte[] derivationKey,
+            byte[] handshakeAuthKey,
+            byte[] permitDecryptKey,
+            byte[] permitAuthKey,
+            byte[] handshakePayload) {
         this.derivationKey = requireExactSize("derivationKey", derivationKey);
         this.handshakeAuthKey = requireExactSize("handshakeAuthKey", handshakeAuthKey);
         this.permitDecryptKey = requireExactSize("permitDecryptKey", permitDecryptKey);
@@ -45,7 +46,8 @@ public final class StaticKeys {
     /**
      * Parse a {@link StaticKeys} from exactly {@value #SERIALIZED_SIZE} bytes.
      *
-     * @throws IllegalArgumentException if the buffer is not exactly {@value #SERIALIZED_SIZE} bytes.
+     * @throws IllegalArgumentException if the buffer is not exactly {@value #SERIALIZED_SIZE}
+     *     bytes.
      */
     public static StaticKeys fromBytes(byte[] data) {
         Objects.requireNonNull(data, "data");
@@ -61,13 +63,15 @@ public final class StaticKeys {
                 Arrays.copyOfRange(data, 4 * FIELD_SIZE, 5 * FIELD_SIZE));
     }
 
-    /** @return a new {@value #SERIALIZED_SIZE}-byte buffer containing the serialized form. */
+    /**
+     * @return a new {@value #SERIALIZED_SIZE}-byte buffer containing the serialized form.
+     */
     public byte[] toBytes() {
         byte[] out = new byte[SERIALIZED_SIZE];
-        System.arraycopy(derivationKey,    0, out, 0 * FIELD_SIZE, FIELD_SIZE);
+        System.arraycopy(derivationKey, 0, out, 0 * FIELD_SIZE, FIELD_SIZE);
         System.arraycopy(handshakeAuthKey, 0, out, 1 * FIELD_SIZE, FIELD_SIZE);
         System.arraycopy(permitDecryptKey, 0, out, 2 * FIELD_SIZE, FIELD_SIZE);
-        System.arraycopy(permitAuthKey,    0, out, 3 * FIELD_SIZE, FIELD_SIZE);
+        System.arraycopy(permitAuthKey, 0, out, 3 * FIELD_SIZE, FIELD_SIZE);
         System.arraycopy(handshakePayload, 0, out, 4 * FIELD_SIZE, FIELD_SIZE);
         return out;
     }

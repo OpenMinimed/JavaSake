@@ -1,7 +1,5 @@
 package org.openminimed.sake;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,30 +7,32 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.junit.jupiter.api.Test;
+
 /**
- * Parity tests for {@link Session} driven by the captured pump pairing pcap
- * embedded in {@code pysake/constants.py} as {@code __PUMP_TEST_MSGS_1}.
+ * Parity tests for {@link Session} driven by the captured pump pairing pcap embedded in {@code
+ * pysake/constants.py} as {@code __PUMP_TEST_MSGS_1}.
  *
- * <p>The expected per-checkpoint state was captured from a harness driving
- * {@link Session} in the reference Python implementation against the same
- * key database and message sequence. Any divergence in any derived field
- * causes an assertion to fail and points at the responsible step.</p>
+ * <p>The expected per-checkpoint state was captured from a harness driving {@link Session} in the
+ * reference Python implementation against the same key database and message sequence. Any
+ * divergence in any derived field causes an assertion to fail and points at the responsible step.
  */
 class SessionTest {
 
     private static final String KEY_DB_HEX =
             "f75995e70401011bc1bf7cbf36fa1e2367d795ff09211903da6afbe986b650f1"
-            + "4179c0e6852e0ce393781078ffc6f51919e2eaefbde69b8eca21e41ab59b881a"
-            + "0bea0286ea91dc7582a86a714e1737f558f0d66dc1895c";
+                    + "4179c0e6852e0ce393781078ffc6f51919e2eaefbde69b8eca21e41ab59b881a"
+                    + "0bea0286ea91dc7582a86a714e1737f558f0d66dc1895c";
 
-    private static final byte[][] PUMP_TEST_MSGS = new byte[][]{
-            Hex.decode("0401e2f09017a98f9f01cc56492fbacd4576e92b"),
-            Hex.decode("42060e9f344e9312016ee8854d357f659b6b00ba"),
-            Hex.decode("fdeeb13d04c3f18d272630ebeabe7c3a4d4d27b9"),
-            Hex.decode("c02cec4ffb99affcb553a10fa6c55bb13d9fbacf"),
-            Hex.decode("157d8e90214418a0e3d5f0517eebf4a82e00c02e"),
-            Hex.decode("9b36f393b296fa84a757809859fc84a5c300d59b"),
-    };
+    private static final byte[][] PUMP_TEST_MSGS =
+            new byte[][] {
+                Hex.decode("0401e2f09017a98f9f01cc56492fbacd4576e92b"),
+                Hex.decode("42060e9f344e9312016ee8854d357f659b6b00ba"),
+                Hex.decode("fdeeb13d04c3f18d272630ebeabe7c3a4d4d27b9"),
+                Hex.decode("c02cec4ffb99affcb553a10fa6c55bb13d9fbacf"),
+                Hex.decode("157d8e90214418a0e3d5f0517eebf4a82e00c02e"),
+                Hex.decode("9b36f393b296fa84a757809859fc84a5c300d59b"),
+            };
 
     private static KeyDatabase keyDb() {
         return KeyDatabase.fromBytes(Hex.decode(KEY_DB_HEX));

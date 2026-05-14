@@ -1,17 +1,15 @@
 package org.openminimed.sake;
 
-import org.openminimed.sake.crypto.AesCmac;
-
 import java.util.Arrays;
 import java.util.Objects;
+import org.openminimed.sake.crypto.AesCmac;
 
 /**
- * Server-side wrapper around {@link Session}: drives the handshake state machine
- * and builds outgoing messages from the running state.
+ * Server-side wrapper around {@link Session}: drives the handshake state machine and builds
+ * outgoing messages from the running state.
  *
- * <p>Stage progression: 0 (consume 20 zero bytes, emit msg0) → 1 (consume msg1,
- * emit msg2) → 3 (consume msg3, emit msg4) → 5 (consume msg5, emit {@code null}
- * to signal completion) → 6 (done).</p>
+ * <p>Stage progression: 0 (consume 20 zero bytes, emit msg0) → 1 (consume msg1, emit msg2) → 3
+ * (consume msg3, emit msg4) → 5 (consume msg5, emit {@code null} to signal completion) → 6 (done).
  */
 public final class SakeServer extends Peer {
 
@@ -43,12 +41,11 @@ public final class SakeServer extends Peer {
     /**
      * Drive the handshake one step.
      *
-     * @param input the 20-byte message just received from the client. At stage 0
-     *              this must be 20 zero bytes (the wake-up frame sent over the
-     *              SAKE characteristic when the peripheral subscribes to
-     *              notifications).
-     * @return the 20-byte message to send back to the client, or {@code null} once
-     *         the handshake completes at stage 5.
+     * @param input the 20-byte message just received from the client. At stage 0 this must be 20
+     *     zero bytes (the wake-up frame sent over the SAKE characteristic when the peripheral
+     *     subscribes to notifications).
+     * @return the 20-byte message to send back to the client, or {@code null} once the handshake
+     *     completes at stage 5.
      * @throws MacFailureException if any CMAC verification fails.
      */
     public byte[] handshake(byte[] input) throws MacFailureException {
@@ -111,8 +108,8 @@ public final class SakeServer extends Peer {
     }
 
     /**
-     * Override the msg4 pad byte. Package-private; only the parity tests use this
-     * to reproduce a captured packet trace bit-for-bit.
+     * Override the msg4 pad byte. Package-private; only the parity tests use this to reproduce a
+     * captured packet trace bit-for-bit.
      */
     void setMsg4Pad(byte value) {
         this.msg4Pad = value;
@@ -130,11 +127,12 @@ public final class SakeServer extends Peer {
     private byte[] buildHandshake2S() {
         byte[] serverKm = rng.nextBytes(8);
         byte[] serverNonce = rng.nextBytes(4);
-        AesCmac auth = Session.cmac8(
-                session.clientKeyMaterial(),
-                serverKm,
-                session.derivationKey(),
-                session.handshakeAuthKey());
+        AesCmac auth =
+                Session.cmac8(
+                        session.clientKeyMaterial(),
+                        serverKm,
+                        session.derivationKey(),
+                        session.handshakeAuthKey());
         byte[] prefix = auth.digest();
 
         byte[] out = new byte[Session.MESSAGE_SIZE];

@@ -1,25 +1,23 @@
 package org.openminimed.sake;
 
-import org.openminimed.sake.crypto.AesCmac;
-import org.openminimed.sake.crypto.AesCtr;
-
 import java.util.Arrays;
 import java.util.Objects;
+import org.openminimed.sake.crypto.AesCmac;
+import org.openminimed.sake.crypto.AesCtr;
 
 /**
  * Sequence-numbered AES-CTR stream cipher with a CMAC trailer.
  *
- * <p>Each direction of the SAKE session is one {@code SeqCrypt} instance with
- * its own sequence counter. The encrypted form of a message is
- * {@code ciphertext || trailer} where {@code trailer} is three bytes:</p>
+ * <p>Each direction of the SAKE session is one {@code SeqCrypt} instance with its own sequence
+ * counter. The encrypted form of a message is {@code ciphertext || trailer} where {@code trailer}
+ * is three bytes:
  *
  * <pre>
  *   [ (seq &gt;&gt; 1) &amp; 0xFF ][ CMAC4(nonce.padTo16 || ciphertext)[0..2] ]
  * </pre>
  *
- * <p>The receiver reconstructs the full 32-bit sequence from its local
- * {@code rxSeq} and the 1-byte field in the trailer, tolerating an 8-bit
- * wrap-around.</p>
+ * <p>The receiver reconstructs the full 32-bit sequence from its local {@code rxSeq} and the 1-byte
+ * field in the trailer, tolerating an 8-bit wrap-around.
  */
 public final class SeqCrypt {
 
@@ -88,8 +86,7 @@ public final class SeqCrypt {
 
         if ((tagPrefix[0] != message[ciphertextLen + 1])
                 || (tagPrefix[1] != message[ciphertextLen + 2])) {
-            throw new MacFailureException(
-                    "MAC verification failed at seq=" + seq);
+            throw new MacFailureException("MAC verification failed at seq=" + seq);
         }
 
         byte[] iv = buildIv(seq);

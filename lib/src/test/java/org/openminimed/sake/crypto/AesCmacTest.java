@@ -1,16 +1,14 @@
 package org.openminimed.sake.crypto;
 
-import org.junit.jupiter.api.Test;
-import org.openminimed.sake.Hex;
-
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-/**
- * Known-answer tests from RFC 4493 (AES-CMAC) Appendix.
- */
+import org.junit.jupiter.api.Test;
+import org.openminimed.sake.Hex;
+
+/** Known-answer tests from RFC 4493 (AES-CMAC) Appendix. */
 class AesCmacTest {
 
     private static final byte[] KEY = Hex.decode("2b7e151628aed2a6abf7158809cf4f3c");
@@ -34,10 +32,11 @@ class AesCmacTest {
 
     @Test
     void rfc4493ExampleFortyBytes() {
-        byte[] msg = Hex.decode(
-                "6bc1bee22e409f96e93d7e117393172a"
-                + "ae2d8a571e03ac9c9eb76fac45af8e51"
-                + "30c81c46a35ce411");
+        byte[] msg =
+                Hex.decode(
+                        "6bc1bee22e409f96e93d7e117393172a"
+                                + "ae2d8a571e03ac9c9eb76fac45af8e51"
+                                + "30c81c46a35ce411");
         byte[] expected = Hex.decode("dfa66747de9ae63030ca32611497c827");
         AesCmac cmac = new AesCmac(KEY, 16);
         cmac.update(msg);
@@ -46,11 +45,12 @@ class AesCmacTest {
 
     @Test
     void rfc4493ExampleSixtyFourBytes() {
-        byte[] msg = Hex.decode(
-                "6bc1bee22e409f96e93d7e117393172a"
-                + "ae2d8a571e03ac9c9eb76fac45af8e51"
-                + "30c81c46a35ce411e5fbc1191a0a52ef"
-                + "f69f2445df4f9b17ad2b417be66c3710");
+        byte[] msg =
+                Hex.decode(
+                        "6bc1bee22e409f96e93d7e117393172a"
+                                + "ae2d8a571e03ac9c9eb76fac45af8e51"
+                                + "30c81c46a35ce411e5fbc1191a0a52ef"
+                                + "f69f2445df4f9b17ad2b417be66c3710");
         byte[] expected = Hex.decode("51f0bebf7e3b9d92fc49741779363cfe");
         AesCmac cmac = new AesCmac(KEY, 16);
         cmac.update(msg);

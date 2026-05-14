@@ -1,23 +1,20 @@
 package org.openminimed.sake;
 
-import org.openminimed.sake.crypto.AesCmac;
-import org.openminimed.sake.crypto.AesEcb;
-
 import java.util.Arrays;
 import java.util.Objects;
+import org.openminimed.sake.crypto.AesCmac;
+import org.openminimed.sake.crypto.AesEcb;
 
 /**
  * Holds the cryptographic state of a single SAKE handshake.
  *
- * <p>Exactly one of {@code clientKeyDb} or {@code serverKeyDb} must be supplied
- * at construction time: the absent side will be unable to perform the
- * cryptographic permit check on its inbound permit message and will simply log
- * the payload comparison instead.</p>
+ * <p>Exactly one of {@code clientKeyDb} or {@code serverKeyDb} must be supplied at construction
+ * time: the absent side will be unable to perform the cryptographic permit check on its inbound
+ * permit message and will simply log the payload comparison instead.
  *
- * <p>Method names match the reference Python implementation
- * ({@code pysake/session.py}). The trailing {@code S} / {@code C} marks which
- * side the message originated from (server vs client), not which side is
- * calling the method.</p>
+ * <p>Method names match the reference Python implementation ({@code pysake/session.py}). The
+ * trailing {@code S} / {@code C} marks which side the message originated from (server vs client),
+ * not which side is calling the method.
  */
 public final class Session {
 
@@ -88,8 +85,10 @@ public final class Session {
         }
         if (staticKeys == null) {
             throw new IllegalStateException(
-                    "No keys available for client device type " + cdt
-                            + " and server device type " + sdt);
+                    "No keys available for client device type "
+                            + cdt
+                            + " and server device type "
+                            + sdt);
         }
 
         this.derivationKey = staticKeys.derivationKey();
@@ -100,7 +99,7 @@ public final class Session {
         checkLen(msg);
         byte[] received = Arrays.copyOfRange(msg, 0, CMAC8_SIZE);
         byte[] serverKm = Arrays.copyOfRange(msg, 8, 16);
-        byte[] serverN  = Arrays.copyOfRange(msg, 16, 20);
+        byte[] serverN = Arrays.copyOfRange(msg, 16, 20);
 
         AesCmac auth = cmac8(clientKeyMaterial, serverKm, derivationKey, handshakeAuthKey);
         if (!auth.verify(received)) {
@@ -115,13 +114,15 @@ public final class Session {
         checkLen(msg);
         byte[] received = Arrays.copyOfRange(msg, 0, CMAC8_SIZE);
 
-        AesCmac auth1 = cmac8(clientKeyMaterial, serverKeyMaterial, derivationKey, handshakeAuthKey);
+        AesCmac auth1 =
+                cmac8(clientKeyMaterial, serverKeyMaterial, derivationKey, handshakeAuthKey);
         byte[] auth1Tag = auth1.digest();
 
         byte[] inner = new byte[CMAC8_SIZE + KEY_MATERIAL_SIZE + AesCmac.BLOCK_SIZE];
         System.arraycopy(auth1Tag, 0, inner, 0, CMAC8_SIZE);
         System.arraycopy(serverKeyMaterial, 0, inner, CMAC8_SIZE, KEY_MATERIAL_SIZE);
-        System.arraycopy(derivationKey, 0, inner, CMAC8_SIZE + KEY_MATERIAL_SIZE, AesCmac.BLOCK_SIZE);
+        System.arraycopy(
+                derivationKey, 0, inner, CMAC8_SIZE + KEY_MATERIAL_SIZE, AesCmac.BLOCK_SIZE);
 
         AesCmac auth2 = new AesCmac(handshakeAuthKey, CMAC8_SIZE);
         auth2.update(inner);
@@ -150,11 +151,11 @@ public final class Session {
     /**
      * Compute the 8-byte CMAC over {@code serverKm || clientKm || derivationKey}.
      *
-     * @return a primed {@link AesCmac} ready to {@link AesCmac#digest()} or
-     *         {@link AesCmac#verify(byte[])}.
+     * @return a primed {@link AesCmac} ready to {@link AesCmac#digest()} or {@link
+     *     AesCmac#verify(byte[])}.
      */
-    public static AesCmac cmac8(byte[] clientKm, byte[] serverKm,
-                                byte[] derivationKey, byte[] handshakeAuthKey) {
+    public static AesCmac cmac8(
+            byte[] clientKm, byte[] serverKm, byte[] derivationKey, byte[] handshakeAuthKey) {
         byte[] msg = new byte[32];
         System.arraycopy(serverKm, 0, msg, 0, KEY_MATERIAL_SIZE);
         System.arraycopy(clientKm, 0, msg, KEY_MATERIAL_SIZE, KEY_MATERIAL_SIZE);
@@ -164,7 +165,9 @@ public final class Session {
         return cmac;
     }
 
-    /** @throws IllegalArgumentException if {@code msg} is not exactly {@value #MESSAGE_SIZE} bytes. */
+    /**
+     * @throws IllegalArgumentException if {@code msg} is not exactly {@value #MESSAGE_SIZE} bytes.
+     */
     public static void checkLen(byte[] msg) {
         Objects.requireNonNull(msg, "msg");
         if (msg.length != MESSAGE_SIZE) {
@@ -187,10 +190,12 @@ public final class Session {
         this.serverCrypt = new SeqCrypt(sessionKey, sessionNonce, 1L);
     }
 
-    private boolean checkPermit(byte[] payload,
-                                StaticKeys verifierStaticKeys,
-                                StaticKeys proverStaticKeys,
-                                int proverDeviceType) throws MacFailureException {
+    private boolean checkPermit(
+            byte[] payload,
+            StaticKeys verifierStaticKeys,
+            StaticKeys proverStaticKeys,
+            int proverDeviceType)
+            throws MacFailureException {
         if (verifierStaticKeys == null) {
             return false;
         }
