@@ -1,0 +1,144 @@
+package org.openminimed.sake;
+
+import org.openminimed.sake.crypto.AesCmac;
+import org.openminimed.sake.crypto.AesCtr;
+
+import java.util.Arrays;
+import java.util.Objects;
+
+/**
+ * Sequence-numbered AES-CTR stream cipher with a CMAC trailer.
+ *
+ * <p>Each direction of the SAKE session is one {@code SeqCrypt} instance with
+ * its own sequence counter. The encrypted form of a message is
+ * {@code ciphertext || trailer} where {@code trailer} is three bytes:</p>
+ *
+ * <pre>
+ *   [ (seq &gt;&gt; 1) &amp; 0xFF ][ CMAC4(nonce.padTo16 || ciphertext)[0..2] ]
+ * </pre>
+ *
+ * <p>The receiver reconstructs the full 32-bit sequence from its local
+ * {@code rxSeq} and the 1-byte field in the trailer, tolerating an 8-bit
+ * wrap-around.</p>
+ */
+public final class SeqCrypt {
+
+    private static final int TRAILER_SIZE = 3;
+    private static final int SEQ_PREFIX_SIZE = 5;
+    private static final int NONCE_SIZE = 8;
+    private static final int MAC_SIZE = 4;
+    private static final int IV_SIZE = 16;
+
+    private final byte[] key;
+    private final byte[] nonce;
+    private long txSeq;
+    private long rxSeq;
+
+    public SeqCrypt(byte[] key, byte[] nonce, long initialSeq) {
+        Objects.requireNonNull(key, "key");
+        Objects.requireNonNull(nonce, "nonce");
+        if (key.length != IV_SIZE) {
+            throw new IllegalArgumentException("key must be " + IV_SIZE + " bytes");
+        }
+        if (nonce.length != NONCE_SIZE) {
+            throw new IllegalArgumentException("nonce must be " + NONCE_SIZE + " bytes");
+        }
+        this.key = key.clone();
+        this.nonce = nonce.clone();
+        this.txSeq = initialSeq;
+        this.rxSeq = initialSeq;
+    }
+
+    public byte[] encrypt(byte[] plaintext) {
+        Objects.requireNonNull(plaintext, "plaintext");
+        long seq = txSeq;
+        byte[] iv = buildIv(seq);
+        byte[] ciphertext = AesCtr.crypt(key, iv, plaintext);
+        byte[] tagPrefix = computeTagPrefix(seq, ciphertext);
+
+        byte[] out = new byte[ciphertext.length + TRAILER_SIZE];
+        System.arraycopy(ciphertext, 0, out, 0, ciphertext.length);
+        out[ciphertext.length] = (byte) ((seq >>> 1) & 0xFF);
+        out[ciphertext.length + 1] = tagPrefix[0];
+        out[ciphertext.length + 2] = tagPrefix[1];
+
+        txSeq = seq + 2;
+        return out;
+    }
+
+    /**
+     * Decrypt and authenticate a message.
+     *
+     * @throws IllegalArgumentException if the buffer is shorter than the trailer.
+     * @throws MacFailureException if the trailer MAC does not match the computed value.
+     */
+    public byte[] decrypt(byte[] message) throws MacFailureException {
+        Objects.requireNonNull(message, "message");
+        if (message.length < TRAILER_SIZE) {
+            throw new IllegalArgumentException("Message shorter than trailer");
+        }
+
+        int seqByte = message[message.length - TRAILER_SIZE] & 0xFF;
+        int delta = (seqByte - (int) ((rxSeq >>> 1) & 0xFF)) & 0xFF;
+        long seq = rxSeq + 2L * delta;
+
+        int ciphertextLen = message.length - TRAILER_SIZE;
+        byte[] ciphertext = Arrays.copyOfRange(message, 0, ciphertextLen);
+        byte[] tagPrefix = computeTagPrefix(seq, ciphertext);
+
+        if ((tagPrefix[0] != message[ciphertextLen + 1])
+                || (tagPrefix[1] != message[ciphertextLen + 2])) {
+            throw new MacFailureException(
+                    "MAC verification failed at seq=" + seq);
+        }
+
+        byte[] iv = buildIv(seq);
+        byte[] plaintext = AesCtr.crypt(key, iv, ciphertext);
+        rxSeq = seq + 2;
+        return plaintext;
+    }
+
+    public long getTxSeq() {
+        return txSeq;
+    }
+
+    public long getRxSeq() {
+        return rxSeq;
+    }
+
+    public void setTxSeq(long value) {
+        this.txSeq = value;
+    }
+
+    public void setRxSeq(long value) {
+        this.rxSeq = value;
+    }
+
+    private byte[] buildIv(long seq) {
+        byte[] iv = new byte[IV_SIZE];
+        iv[0] = (byte) ((seq >>> 32) & 0xFF);
+        iv[1] = (byte) ((seq >>> 24) & 0xFF);
+        iv[2] = (byte) ((seq >>> 16) & 0xFF);
+        iv[3] = (byte) ((seq >>> 8) & 0xFF);
+        iv[4] = (byte) (seq & 0xFF);
+        System.arraycopy(nonce, 0, iv, SEQ_PREFIX_SIZE, NONCE_SIZE);
+        // Trailing 3 bytes remain zero (counter region for AES-CTR).
+        return iv;
+    }
+
+    private byte[] computeTagPrefix(long seq, byte[] ciphertext) {
+        byte[] cmacInput = new byte[IV_SIZE + ciphertext.length];
+        cmacInput[0] = (byte) ((seq >>> 32) & 0xFF);
+        cmacInput[1] = (byte) ((seq >>> 24) & 0xFF);
+        cmacInput[2] = (byte) ((seq >>> 16) & 0xFF);
+        cmacInput[3] = (byte) ((seq >>> 8) & 0xFF);
+        cmacInput[4] = (byte) (seq & 0xFF);
+        System.arraycopy(nonce, 0, cmacInput, SEQ_PREFIX_SIZE, NONCE_SIZE);
+        // Bytes 13..15 are the zero-padding to 16 (`ljust` in the Python).
+        System.arraycopy(ciphertext, 0, cmacInput, IV_SIZE, ciphertext.length);
+
+        AesCmac cmac = new AesCmac(key, MAC_SIZE);
+        cmac.update(cmacInput);
+        return cmac.digest();
+    }
+}
