@@ -1,11 +1,11 @@
 package org.openminimed.sake;
 
-final class Hex {
+public final class Hex {
 
     private Hex() {
     }
 
-    static byte[] decode(String hex) {
+    public static byte[] decode(String hex) {
         if ((hex.length() & 1) != 0) {
             throw new IllegalArgumentException("Hex string has odd length: " + hex.length());
         }
@@ -21,7 +21,7 @@ final class Hex {
         return out;
     }
 
-    static String encode(byte[] data) {
+    public static String encode(byte[] data) {
         StringBuilder sb = new StringBuilder(data.length * 2);
         for (byte b : data) {
             sb.append(String.format("%02x", b & 0xFF));
