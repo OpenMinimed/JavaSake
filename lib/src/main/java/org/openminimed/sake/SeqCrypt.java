@@ -118,12 +118,13 @@ public final class SeqCrypt {
         byte[] plaintext = AesCtr.crypt(key, iv, ciphertext);
 
         boolean macOk = (tagPrefix[0] == message[ciphertextLen + 1])
-                && (tagPrefix[1] == message[ciphertextLen + 2]);
+                        && (tagPrefix[1] == message[ciphertextLen + 2]);
 
         rxSeq = macOk ? seq + 2 : rxSeq + 1;
 
         if (!macOk) {
-            throw new MacFailureException("MAC verification failed at seq=" + seq);
+            throw new MacFailureException(
+                    "MAC verification failed at seq=" + seq + " message=" + bytesToHex(message));
         }
 
         return plaintext;
@@ -151,6 +152,15 @@ public final class SeqCrypt {
 
     public void setRxSeq(long value) {
         this.rxSeq = value;
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        char[] hex = new char[bytes.length * 2];
+        for (int i = 0; i < bytes.length; i++) {
+            hex[i * 2] = "0123456789abcdef".charAt((bytes[i] >> 4) & 0xF);
+            hex[i * 2 + 1] = "0123456789abcdef".charAt(bytes[i] & 0xF);
+        }
+        return new String(hex);
     }
 
     private byte[] buildIv(long seq) {
