@@ -114,14 +114,18 @@ public final class SeqCrypt {
         byte[] ciphertext = Arrays.copyOfRange(message, 0, ciphertextLen);
         byte[] tagPrefix = computeTagPrefix(seq, ciphertext);
 
-        if ((tagPrefix[0] != message[ciphertextLen + 1])
-                || (tagPrefix[1] != message[ciphertextLen + 2])) {
+        byte[] iv = buildIv(seq);
+        byte[] plaintext = AesCtr.crypt(key, iv, ciphertext);
+
+        boolean macOk = (tagPrefix[0] == message[ciphertextLen + 1])
+                && (tagPrefix[1] == message[ciphertextLen + 2]);
+
+        rxSeq = macOk ? seq + 2 : rxSeq + 1;
+
+        if (!macOk) {
             throw new MacFailureException("MAC verification failed at seq=" + seq);
         }
 
-        byte[] iv = buildIv(seq);
-        byte[] plaintext = AesCtr.crypt(key, iv, ciphertext);
-        rxSeq = seq + 2;
         return plaintext;
     }
 
